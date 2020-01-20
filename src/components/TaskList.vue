@@ -44,58 +44,37 @@
 
 <script>
 import TaskItem from "./TaskItem.vue";
+import { mapGetters, mapMutations } from 'vuex'
 export default {
   components: {
     TaskItem
   },
   data() {
     return {
-      newTask: "",
-      tasks: [
-        {
-          title: "Make todo list",
-          completed: true
-        },
-        {
-          title: "Go skydiving",
-          completed: false
-        }
-      ]
+      newTask: ""
     };
   },
   computed: {
-    incomplete() {
-      return this.tasks.filter(this.inProgress).length;
-    }
+    ...mapGetters({
+      tasks: 'allTodos',  
+      incomplete: 'countIncompleteTodos'
+    })
   },
   methods: {
+    ...mapMutations({
+        completeTask: 'toggleTask', // map `this.completeTask(task)` to `this.$store.commit('toggleTask', task)`
+        removeTask: 'removeTask',
+        clearCompleted: 'clearCompleted',
+        clearAll: 'clearAll'
+    }),  
     addTask() {
       if (this.newTask) {
-        this.tasks.push({
+        this.$store.commit('addTask', {
           title: this.newTask,
           completed: false
-        });
+        })  
         this.newTask = "";
       }
-    },
-    completeTask(task) {
-      task.completed = !task.completed;
-    },
-    removeTask(index) {
-      this.tasks.splice(index, 1);
-    },
-    clearCompleted() {
-      this.tasks = this.tasks.filter(this.inProgress);
-    },
-    clearAll() {
-      this.tasks = [];
-    },
-
-    inProgress(task) {
-      return !this.isCompleted(task);
-    },
-    isCompleted(task) {
-      return task.completed;
     }
   }
 };
